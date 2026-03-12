@@ -15,8 +15,8 @@ app.route("/library", libraryRoutes);
 app.get("/health", (c) => c.json({ status: "ok" }));
 
 export default {
-  port: 3001,
+  port: 3420,
   fetch: app.fetch,
 };
 
-console.log("Server running on http://localhost:3001");
+console.log("Server running on http://localhost:3420");
