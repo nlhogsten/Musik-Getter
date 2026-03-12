@@ -18,6 +18,7 @@ export interface InspectResult {
 
 interface Props {
   results: InspectResult[];
+  rawOutputs: Map<string, string>;
   selected: Map<string, Set<string>>;
   onToggle: (url: string, formatId: string) => void;
 }
@@ -26,7 +27,7 @@ function isAudio(row: FormatRow) {
   return row.resolution.toLowerCase().includes("audio");
 }
 
-export function FormatInspector({ results, selected, onToggle }: Props) {
+export function FormatInspector({ results, rawOutputs, selected, onToggle }: Props) {
   const [showRaw, setShowRaw] = useState<Record<number, boolean>>({});
 
   return (
@@ -54,9 +55,20 @@ export function FormatInspector({ results, selected, onToggle }: Props) {
           {r.success ? (
             <>
               {showRaw[i] ? (
-                <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-64 overflow-y-auto rounded bg-slate-900 p-3">
-                  {r.rawOutput}
-                </pre>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-medium text-slate-300">Raw Inspection Output</h4>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(rawOutputs.get(r.url) || "")}
+                      className="text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                    >
+                      Copy to Clipboard
+                    </button>
+                  </div>
+                  <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-64 overflow-y-auto rounded bg-slate-900 p-3">
+                    {rawOutputs.get(r.url) || "No raw output available"}
+                  </pre>
+                </div>
               ) : (
                 <div className="rounded-md border border-slate-700 overflow-hidden">
                   <table className="w-full text-xs">

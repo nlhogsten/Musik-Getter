@@ -5,6 +5,7 @@ import { inspectRoutes } from "./routes/inspect";
 import { downloadRoutes } from "./routes/download";
 import { libraryRoutes } from "./routes/library";
 import { logsRoutes } from "./routes/logs";
+import { inspectionsRoutes } from "./routes/inspections";
 
 const app = new Hono();
 
@@ -21,6 +22,7 @@ app.route("/inspect", inspectRoutes);
 app.route("/download", downloadRoutes);
 app.route("/library", libraryRoutes);
 app.route("/logs", logsRoutes);
+app.route("/inspections", inspectionsRoutes);
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
-import { getBuffer, subscribe } from "../logStore";
+import { getBuffer, subscribe, clearBuffer } from "../logStore";
 
 export const logsRoutes = new Hono();
 
@@ -38,4 +38,9 @@ logsRoutes.get("/", (c) => {
       }
     }
   });
+});
+
+logsRoutes.delete("/", async (c) => {
+  clearBuffer();
+  return c.json({ ok: true });
 });

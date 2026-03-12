@@ -12,11 +12,25 @@ const LEVEL_COLOR: Record<LogEntry["level"], string> = {
   error: "text-red-400",
 };
 
+
 export function LogPanel() {
   const [open, setOpen] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [connected, setConnected] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const clearLogs = async () => {
+    if (!confirm('Are you sure you want to clear all logs?')) return;
+    
+    try {
+      await fetch("/api/logs", {
+        method: "DELETE",
+      });
+      setLogs([]);
+    } catch (err) {
+      console.error('Error clearing logs:', err);
+    }
+  };
 
   useEffect(() => {
     const es = new EventSource("/api/logs");
@@ -54,7 +68,20 @@ export function LogPanel() {
             <span className="text-xs text-slate-600 font-mono">({logs.length})</span>
           )}
         </div>
-        <span className="text-xs text-slate-500">{open ? "▼" : "▲"}</span>
+        <div className="flex items-center gap-2">
+          {logs.length > 0 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                clearLogs();
+              }}
+              className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-red-900/30 transition-colors"
+            >
+              Clear
+            </button>
+          )}
+          <span className="text-xs text-slate-500">{open ? "▼" : "▲"}</span>
+        </div>
       </div>
 
       {/* Log window */}

@@ -26,6 +26,10 @@ export function subscribe(fn: (entry: LogEntry) => void): () => void {
   return () => subscribers.delete(fn);
 }
 
+export function clearBuffer() {
+  buffer.length = 0;
+}
+
 // Patch console so all server logs flow through
 const origLog = console.log.bind(console);
 const origError = console.error.bind(console);

@@ -41,3 +41,20 @@ libraryRoutes.post("/reveal", async (c) => {
   Bun.spawn(["open", "-R", path]);
   return c.json({ ok: true });
 });
+
+libraryRoutes.delete("/", async (c) => {
+  const { path } = await c.req.json<{ path: string }>();
+
+  if (!path || !path.startsWith(DOWNLOADS_DIR)) {
+    return c.json({ error: "Invalid path" }, 400);
+  }
+
+  try {
+    // Use Bun.spawn for file deletion
+    const proc = Bun.spawn(["rm", path]);
+    await proc.exited;
+    return c.json({ ok: true });
+  } catch (err) {
+    return c.json({ error: "Failed to delete file" }, 500);
+  }
+});

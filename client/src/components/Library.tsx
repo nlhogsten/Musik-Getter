@@ -38,6 +38,23 @@ export function Library() {
     loadFiles();
   }, []);
 
+  const deleteFile = async (path: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+    
+    try {
+      const res = await fetch("/api/library", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path }),
+      });
+      if (res.ok) {
+        await loadFiles();
+      }
+    } catch (err) {
+      console.error('Error deleting file:', err);
+    }
+  };
+
   const reveal = async (path: string) => {
     await fetch("/api/library/reveal", {
       method: "POST",
@@ -79,12 +96,20 @@ export function Library() {
                   {formatSize(f.size)} &middot; {formatDate(f.modified)}
                 </p>
               </div>
-              <button
-                onClick={() => reveal(f.path)}
-                className="shrink-0 text-xs text-slate-400 hover:text-white px-3 py-1 rounded-md hover:bg-slate-700 transition-colors"
-              >
-                Show in Finder
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => reveal(f.path)}
+                  className="shrink-0 text-xs text-slate-400 hover:text-white px-3 py-1 rounded-md hover:bg-slate-700 transition-colors"
+                >
+                  Show in Finder
+                </button>
+                <button
+                  onClick={() => deleteFile(f.path, f.name)}
+                  className="shrink-0 text-xs text-red-400 hover:text-red-300 px-3 py-1 rounded-md hover:bg-red-900/30 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>

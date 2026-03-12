@@ -4,14 +4,17 @@ import { FormatInspector, type InspectResult } from "./components/FormatInspecto
 import { DownloadProgress, type DownloadJob } from "./components/DownloadProgress";
 import { Library } from "./components/Library";
 import { LogPanel } from "./components/LogPanel";
+import { FormatDocs } from "./components/FormatDocs";
+import { InspectionHistory } from "./components/InspectionHistory";
 
-type Tab = "download" | "library";
+type Tab = "download" | "library" | "docs" | "history";
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("download");
   const [urls, setUrls] = useState<string[]>([""]);
   const [proxy, setProxy] = useState("");
   const [inspectResults, setInspectResults] = useState<InspectResult[] | null>(null);
+  const [rawOutputs, setRawOutputs] = useState<Map<string, string>>(new Map());
   const [inspecting, setInspecting] = useState(false);
   // url → Set of selected format IDs
   const [selected, setSelected] = useState<Map<string, Set<string>>>(new Map());
@@ -35,6 +38,35 @@ export default function App() {
       });
       const data = await res.json();
       setInspectResults(data.results);
+      
+      // Create raw outputs map
+      const rawMap = new Map<string, string>();
+      data.results.forEach((result: InspectResult) => {
+        if (result.rawOutput) {
+          rawMap.set(result.url, result.rawOutput);
+        }
+      });
+      setRawOutputs(rawMap);
+
+      // Save inspection to history
+      if (data.results && data.results.length > 0) {
+        // Generate unique ID with timestamp and random suffix
+        const randomSuffix = Math.random().toString(36).substring(2, 8);
+        const inspectionId = `inspection_${Date.now()}_${randomSuffix}`;
+        
+        await fetch("/api/inspections", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: inspectionId,
+            timestamp: Date.now(),
+            urls: validUrls,
+            results: data.results,
+            rawOutput: data.results.map((r: any) => r.rawOutput || "").join("\n"),
+            proxy: proxy || undefined,
+          }),
+        });
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -156,6 +188,26 @@ export default function App() {
             >
               Library
             </button>
+            <button
+              onClick={() => setTab("history")}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                tab === "history"
+                  ? "bg-violet-600 text-white"
+                  : "text-slate-400 hover:text-white hover:bg-slate-700"
+              }`}
+            >
+              History
+            </button>
+            <button
+              onClick={() => setTab("docs")}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                tab === "docs"
+                  ? "bg-violet-600 text-white"
+                  : "text-slate-400 hover:text-white hover:bg-slate-700"
+              }`}
+            >
+              Format Docs
+            </button>
           </nav>
         </div>
       </header>
@@ -175,6 +227,7 @@ export default function App() {
             {inspectResults && (
               <FormatInspector
                 results={inspectResults}
+                rawOutputs={rawOutputs}
                 selected={selected}
                 onToggle={handleToggle}
               />
@@ -197,8 +250,12 @@ export default function App() {
 
             <DownloadProgress jobs={jobs} />
           </>
-        ) : (
+        ) : tab === "library" ? (
           <Library />
+        ) : tab === "history" ? (
+          <InspectionHistory />
+        ) : (
+          <FormatDocs />
         )}
       </main>
 
