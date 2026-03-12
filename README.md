@@ -1,6 +1,6 @@
 # Music Getter
 
-A local download tool powered by `yt-dlp` and `ffmpeg`. Paste up to 3 URLs, inspect available formats, and download audio in MP3, WAV, FLAC, or the original best quality.
+A local Mac Video & Audio download tool powered by `yt-dlp` and `ffmpeg`. Paste up to 3 URLs, inspect available formats, and download audio in MP3, WAV, FLAC, or the original best quality.
 
 ## Requirements
 
