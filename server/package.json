@@ -1,0 +1,11 @@
+{
+  "name": "music-getter-server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --watch index.ts"
+  },
+  "dependencies": {
+    "hono": "^4.7.0"
+  }
+}

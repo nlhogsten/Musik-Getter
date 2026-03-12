@@ -1,0 +1,10 @@
+{
+  "name": "music-getter",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "dev:server": "cd server && bun run dev",
+    "dev:client": "cd client && bun run dev"
+  }
+}
