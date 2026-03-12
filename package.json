@@ -4,6 +4,8 @@
   "private": true,
   "workspaces": ["server", "client"],
   "scripts": {
-    "dev": "bun run --filter '*' dev"
+    "dev": "bun run --filter '*' dev",
+    "kill-ports": "lsof -ti:3420 | xargs kill -9 2>/dev/null || true && lsof -ti:5420 | xargs kill -9 2>/dev/null || true",
+    "clean-start": "bun run kill-ports && bun run dev"
   }
 }

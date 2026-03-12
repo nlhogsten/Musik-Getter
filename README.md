@@ -34,14 +34,34 @@ This installs dependencies for both `server` and `client` via Bun workspaces.
 bun run dev
 ```
 
-This starts both the server (port 3001) and client (port 5173) concurrently. Then open [http://localhost:5173](http://localhost:5173).
+This starts both the server (port 3420) and client (port 5420) concurrently. Then open [http://localhost:5420](http://localhost:5420).
+
+### Troubleshooting Port Conflicts
+
+If you get "port in use" errors, you can either:
+
+1. **Clean start** (recommended): Kills conflicting ports then starts:
+   ```bash
+   bun run clean-start
+   ```
+
+2. **Kill ports manually**: Kills processes using the ports:
+   ```bash
+   bun run kill-ports
+   ```
+
+3. **Manual cleanup**: Kill specific ports:
+   ```bash
+   lsof -ti:3420 | xargs kill -9
+   lsof -ti:5420 | xargs kill -9
+   ```
 
 ## Architecture
 
 ```
 Music-Getter/
 ├── server/                  # Bun + Hono backend
-│   ├── index.ts             # Server entry (port 3001)
+│   ├── index.ts             # Server entry (port 3420)
 │   └── routes/
 │       ├── inspect.ts       # POST /inspect — run yt-dlp -F on URLs
 │       ├── download.ts      # POST /download — stream download progress via SSE
@@ -59,7 +79,7 @@ Music-Getter/
 
 ### How it works
 
-- The **Vite dev server** proxies `/api/*` requests to the Hono server at `localhost:3001`, so the frontend and backend run on separate ports without CORS issues in development.
+- The **Vite dev server** proxies `/api/*` requests to the Hono server at `localhost:3420`, so the frontend and backend run on separate ports without CORS issues in development.
 - **Format inspection** shells out to `yt-dlp -F <url>` and returns the raw format table so you can see exactly what streams are available before downloading.
 - **Downloads** use `Bun.spawn` to run `yt-dlp` and pipe stdout back to the browser in real time via [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events). No WebSocket library needed.
 - **Proxy support** — enter a proxy in the optional field (e.g. `socks5://127.0.0.1:9050` for Tor, or `http://host:port` for HTTP proxies). It gets appended to all `yt-dlp` calls.

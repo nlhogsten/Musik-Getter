@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { readdir, stat } from "fs/promises";
-import { resolve, join } from "path";
+import { readdir, stat } from "node:fs/promises";
+import { join } from "node:path";
 
-const DOWNLOADS_DIR = resolve(import.meta.dir, "../../downloads");
+const DOWNLOADS_DIR = new URL("../../downloads", import.meta.url).pathname;
 
 export const libraryRoutes = new Hono();
 

@@ -1,9 +1,8 @@
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
-import { resolve } from "path";
 import { pushLog } from "../logStore";
 
-const DOWNLOADS_DIR = resolve(import.meta.dir, "../../downloads");
+const DOWNLOADS_DIR = new URL("../../downloads", import.meta.url).pathname;
 const NAMED_PRESETS = new Set(["mp3", "wav", "flac"]);
 
 export const downloadRoutes = new Hono();

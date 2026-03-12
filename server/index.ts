@@ -8,7 +8,7 @@ import { logsRoutes } from "./routes/logs";
 
 const app = new Hono();
 
-app.use("/*", cors({ origin: "http://localhost:5173" }));
+app.use("/*", cors({ origin: "http://localhost:5420" }));
 
 // Log every incoming request
 app.use("/*", async (c, next) => {
