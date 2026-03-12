@@ -4,3 +4,7 @@ node_modules
 dist
 .env
 *.log
+
+# Ignore inspection files but keep .gitkeep
+downloads/inspections/*.json
+!downloads/inspections/.gitkeep
