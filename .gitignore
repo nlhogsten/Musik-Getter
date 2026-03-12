@@ -10,5 +10,11 @@ downloads/inspections/*.json
 !downloads/inspections/.gitkeep
 
 # Ignore format subfolders but keep .gitkeep files
-downloads/*/
-!downloads/*/.gitkeep
+downloads/mp3/*
+downloads/wav/*
+downloads/flac/*
+downloads/other/*
+!downloads/mp3/.gitkeep
+!downloads/wav/.gitkeep
+!downloads/flac/.gitkeep
+!downloads/other/.gitkeep
