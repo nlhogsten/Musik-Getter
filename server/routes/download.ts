@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { resolve } from "path";
+import { pushLog } from "../logStore";
 
 const DOWNLOADS_DIR = resolve(import.meta.dir, "../../downloads");
+const NAMED_PRESETS = new Set(["mp3", "wav", "flac"]);
 
 export const downloadRoutes = new Hono();
 
@@ -19,26 +21,20 @@ downloadRoutes.post("/", async (c) => {
 
   if (proxy) args.push("--proxy", proxy);
 
-  if (format === "mp3") {
-    args.push("-f", "bestaudio", "--extract-audio", "--audio-format", "mp3");
-  } else if (format === "wav") {
-    args.push("-f", "bestaudio", "--extract-audio", "--audio-format", "wav");
-  } else if (format === "flac") {
-    args.push("-f", "bestaudio", "--extract-audio", "--audio-format", "flac");
-  } else if (format) {
-    args.push("-f", format);
+  const fmt = format || "mp3";
+
+  if (NAMED_PRESETS.has(fmt)) {
+    // Named audio preset: extract and convert
+    args.push("-f", "bestaudio", "--extract-audio", "--audio-format", fmt);
   } else {
-    args.push("-f", "bestaudio", "--extract-audio", "--audio-format", "mp3");
+    // Raw yt-dlp format ID from inspector (e.g. "251", "bestaudio", "bestvideo+bestaudio")
+    args.push("-f", fmt);
   }
 
-  args.push(
-    "--newline",
-    "-o",
-    `${DOWNLOADS_DIR}/%(title)s.%(ext)s`,
-    url
-  );
+  args.push("--newline", "-o", `${DOWNLOADS_DIR}/%(title)s.%(ext)s`, url);
 
   const command = `yt-dlp ${args.join(" ")}`;
+  pushLog("info", `Download starting: ${command}`);
 
   return streamSSE(c, async (stream) => {
     await stream.writeSSE({ data: JSON.stringify({ type: "command", command }), event: "message" });
@@ -62,6 +58,7 @@ downloadRoutes.post("/", async (c) => {
 
       for (const line of lines) {
         if (line.trim()) {
+          pushLog("info", line.trim());
           await stream.writeSSE({
             data: JSON.stringify({ type: "progress", line: line.trim() }),
             event: "message",
@@ -71,6 +68,7 @@ downloadRoutes.post("/", async (c) => {
     }
 
     if (buffer.trim()) {
+      pushLog("info", buffer.trim());
       await stream.writeSSE({
         data: JSON.stringify({ type: "progress", line: buffer.trim() }),
         event: "message",
@@ -79,6 +77,9 @@ downloadRoutes.post("/", async (c) => {
 
     const stderr = await new Response(proc.stderr).text();
     const exitCode = await proc.exited;
+
+    if (stderr) pushLog("error", `yt-dlp stderr: ${stderr.trim()}`);
+    pushLog("info", `Download finished. Exit: ${exitCode}`);
 
     await stream.writeSSE({
       data: JSON.stringify({
