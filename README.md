@@ -23,28 +23,18 @@ curl -fsSL https://bun.sh/install | bash
 ## Setup
 
 ```bash
-# Install server dependencies
-cd server && bun install && cd ..
-
-# Install client dependencies
-cd client && bun install && cd ..
+bun install
 ```
+
+This installs dependencies for both `server` and `client` via Bun workspaces.
 
 ## Running
 
-Open two terminals from the project root:
-
-**Terminal 1 — backend server (port 3001)**
 ```bash
-cd server && bun run dev
+bun run dev
 ```
 
-**Terminal 2 — frontend (port 5173)**
-```bash
-cd client && bun run dev
-```
-
-Then open [http://localhost:5173](http://localhost:5173).
+This starts both the server (port 3001) and client (port 5173) concurrently. Then open [http://localhost:5173](http://localhost:5173).
 
 ## Architecture
 
