@@ -8,3 +8,7 @@ dist
 # Ignore inspection files but keep .gitkeep
 downloads/inspections/*.json
 !downloads/inspections/.gitkeep
+
+# Ignore format subfolders but keep .gitkeep files
+downloads/*/
+!downloads/*/.gitkeep

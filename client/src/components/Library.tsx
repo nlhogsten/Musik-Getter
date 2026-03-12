@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 interface FileEntry {
   name: string;
   path: string;
+  relativePath: string;
   size: number;
   modified: number;
 }
@@ -89,11 +90,11 @@ export function Library() {
               className="py-3 flex items-center justify-between gap-4"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-white truncate" title={f.name}>
+                <p className="text-sm text-white truncate" title={f.relativePath}>
                   {f.name}
                 </p>
                 <p className="text-xs text-slate-500">
-                  {formatSize(f.size)} &middot; {formatDate(f.modified)}
+                  {f.relativePath.includes('/') ? `${f.relativePath.split('/')[0]} • ` : ''}{formatSize(f.size)} &middot; {formatDate(f.modified)}
                 </p>
               </div>
               <div className="flex gap-2">

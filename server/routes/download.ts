@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { pushLog } from "../logStore";
+import { mkdir } from "node:fs/promises";
 
 const DOWNLOADS_DIR = new URL("../../downloads", import.meta.url).pathname;
 const NAMED_PRESETS = new Set(["mp3", "wav", "flac"]);
@@ -21,16 +22,24 @@ downloadRoutes.post("/", async (c) => {
   if (proxy) args.push("--proxy", proxy);
 
   const fmt = format || "mp3";
+  let formatFolder: string;
 
   if (NAMED_PRESETS.has(fmt)) {
     // Named audio preset: extract and convert
+    formatFolder = fmt;
     args.push("-f", "bestaudio", "--extract-audio", "--audio-format", fmt);
   } else {
-    // Raw yt-dlp format ID from inspector (e.g. "251", "bestaudio", "bestvideo+bestaudio")
+    // Raw yt-dlp format ID from inspector - determine format folder from extension
+    // For now, use "other" folder for unknown formats
+    formatFolder = "other";
     args.push("-f", fmt);
   }
 
-  args.push("--newline", "-o", `${DOWNLOADS_DIR}/%(title)s.%(ext)s`, url);
+  // Ensure format folder exists
+  const formatDir = `${DOWNLOADS_DIR}/${formatFolder}`;
+  await mkdir(formatDir, { recursive: true });
+
+  args.push("--newline", "-o", `${formatDir}/%(title)s.%(ext)s`, url);
 
   const command = `yt-dlp ${args.join(" ")}`;
   pushLog("info", `Download starting: ${command}`);
