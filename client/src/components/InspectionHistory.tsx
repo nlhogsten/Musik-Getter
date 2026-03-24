@@ -166,9 +166,10 @@ export function InspectionHistory() {
             );
           }
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
         setJobs((prev) =>
-          prev.map((j, idx) => (idx === i ? { ...j, status: "error", error: err.message } : j))
+          prev.map((j, idx) => (idx === i ? { ...j, status: "error", error: errorMessage } : j))
         );
       }
     }

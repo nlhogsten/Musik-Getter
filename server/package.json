@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch index.ts",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "hono": "^4.7.0"

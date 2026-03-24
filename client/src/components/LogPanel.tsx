@@ -39,7 +39,9 @@ export function LogPanel() {
       try {
         const entry: LogEntry = JSON.parse(e.data);
         setLogs((prev) => [...prev.slice(-299), entry]);
-      } catch {}
+      } catch {
+        // Ignore JSON parsing errors for malformed log entries
+      }
     });
 
     es.onopen = () => setConnected(true);

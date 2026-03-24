@@ -6,8 +6,9 @@ import { Library } from "./components/Library";
 import { LogPanel } from "./components/LogPanel";
 import { FormatDocs } from "./components/FormatDocs";
 import { InspectionHistory } from "./components/InspectionHistory";
+import { DataSources } from "./components/DataSources";
 
-type Tab = "download" | "library" | "docs" | "history";
+type Tab = "download" | "library" | "docs" | "history" | "sources";
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("download");
@@ -62,7 +63,7 @@ export default function App() {
             timestamp: Date.now(),
             urls: validUrls,
             results: data.results,
-            rawOutput: data.results.map((r: any) => r.rawOutput || "").join("\n"),
+            rawOutput: data.results.map((r: { rawOutput?: string }) => r.rawOutput || "").join("\n"),
             proxy: proxy || undefined,
           }),
         });
@@ -150,10 +151,11 @@ export default function App() {
             );
           }
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
         setJobs((prev) =>
           prev.map((j, idx) =>
-            idx === i ? { ...j, status: "error", error: err.message } : j
+            idx === i ? { ...j, status: "error", error: errorMessage } : j
           )
         );
       }
@@ -208,6 +210,16 @@ export default function App() {
             >
               Format Docs
             </button>
+            <button
+              onClick={() => setTab("sources")}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                tab === "sources"
+                  ? "bg-violet-600 text-white"
+                  : "text-slate-400 hover:text-white hover:bg-slate-700"
+              }`}
+            >
+              Data Sources
+            </button>
           </nav>
         </div>
       </header>
@@ -254,6 +266,8 @@ export default function App() {
           <Library />
         ) : tab === "history" ? (
           <InspectionHistory />
+        ) : tab === "sources" ? (
+          <DataSources />
         ) : (
           <FormatDocs />
         )}
