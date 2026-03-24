@@ -17,25 +17,6 @@ export interface DataSource {
 
 const dataSources: DataSource[] = [
   {
-    name: "YouTube",
-    extractor: "youtube",
-    category: "both",
-    qualityRank: 4,
-    maxAudioQuality: "Opus 160kbps",
-    maxVideoQuality: "4K VP9/AV1",
-    supportedCodecs: ["opus", "aac", "mp3", "vp9", "av01", "avc1"],
-    reliability: "high",
-    typicalBitrates: ["128-160kbps audio", "4-20Mbps video"],
-    sampleUrls: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
-    notes: [
-      "Most reliable source",
-      "Consistent quality",
-      "Large content library",
-      "Opus audio codec provides excellent quality"
-    ],
-    description: "World's largest video platform with extensive music content"
-  },
-  {
     name: "Bandcamp",
     extractor: "bandcamp",
     category: "audio",
@@ -53,6 +34,63 @@ const dataSources: DataSource[] = [
       "Supports independent artists"
     ],
     description: "Direct-to-fan music platform with lossless audio support"
+  },
+  {
+    name: "Internet Archive",
+    extractor: "archive.org",
+    category: "both",
+    qualityRank: 5,
+    maxAudioQuality: "FLAC lossless",
+    maxVideoQuality: "4K various",
+    supportedCodecs: ["flac", "aac", "mp3", "h264", "vp9"],
+    reliability: "high",
+    typicalBitrates: ["Lossless audio", "Variable video"],
+    sampleUrls: ["https://archive.org/details/concert-name"],
+    notes: [
+      "Public domain content",
+      "Lossless audio archives",
+      "Concert recordings",
+      "Historical content"
+    ],
+    description: "Digital library with vast audio/video archives"
+  },
+  {
+    name: "Jamendo",
+    extractor: "jamendo",
+    category: "audio",
+    qualityRank: 4,
+    maxAudioQuality: "FLAC lossless",
+    maxVideoQuality: "N/A",
+    supportedCodecs: ["flac", "mp3", "ogg"],
+    reliability: "high",
+    typicalBitrates: ["Lossless", "192kbps", "128kbps"],
+    sampleUrls: ["https://www.jamendo.com/track/123456"],
+    notes: [
+      "Independent music platform",
+      "Creative Commons licensed",
+      "Lossless downloads available",
+      "No restrictions"
+    ],
+    description: "Independent music platform with Creative Commons licensing"
+  },
+  {
+    name: "YouTube",
+    extractor: "youtube",
+    category: "both",
+    qualityRank: 4,
+    maxAudioQuality: "Opus 160kbps",
+    maxVideoQuality: "4K VP9/AV1",
+    supportedCodecs: ["opus", "aac", "mp3", "vp9", "av01", "avc1"],
+    reliability: "high",
+    typicalBitrates: ["128-160kbps audio", "4-20Mbps video"],
+    sampleUrls: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+    notes: [
+      "Most reliable source",
+      "Consistent quality",
+      "Large content library",
+      "Opus audio codec provides excellent quality"
+    ],
+    description: "World's largest video platform with extensive music content"
   },
   {
     name: "SoundCloud",
@@ -93,61 +131,42 @@ const dataSources: DataSource[] = [
     description: "Professional video platform with high-quality content"
   },
   {
-    name: "Dailymotion",
-    extractor: "dailymotion",
-    category: "both",
-    qualityRank: 3,
-    maxAudioQuality: "AAC 128kbps",
-    maxVideoQuality: "1080p H.264",
-    supportedCodecs: ["aac", "h264", "vp9"],
-    reliability: "medium",
-    typicalBitrates: ["96-128kbps audio", "2-8Mbps video"],
-    sampleUrls: ["https://www.dailymotion.com/video/x123456"],
-    notes: [
-      "European platform",
-      "Moderate quality",
-      "Some regional restrictions",
-      "Reliable for mainstream content"
-    ],
-    description: "European video hosting platform"
-  },
-  {
-    name: "Internet Archive",
-    extractor: "archive.org",
-    category: "both",
-    qualityRank: 5,
-    maxAudioQuality: "FLAC lossless",
-    maxVideoQuality: "4K various",
-    supportedCodecs: ["flac", "aac", "mp3", "h264", "vp9"],
-    reliability: "high",
-    typicalBitrates: ["Lossless audio", "Variable video"],
-    sampleUrls: ["https://archive.org/details/concert-name"],
-    notes: [
-      "Public domain content",
-      "Lossless audio archives",
-      "Concert recordings",
-      "Historical content"
-    ],
-    description: "Digital library with vast audio/video archives"
-  },
-  {
-    name: "Spotify (via extractor)",
-    extractor: "spotify",
+    name: "Mixcloud",
+    extractor: "mixcloud",
     category: "audio",
     qualityRank: 3,
-    maxAudioQuality: "AAC 320kbps",
+    maxAudioQuality: "AAC 128kbps",
     maxVideoQuality: "N/A",
-    supportedCodecs: ["aac", "ogg"],
+    supportedCodecs: ["aac", "mp3"],
     reliability: "medium",
-    typicalBitrates: ["96kbps", "160kbps", "320kbps"],
-    sampleUrls: ["https://open.spotify.com/track/123456789"],
+    typicalBitrates: ["64kbps", "96kbps", "128kbps"],
+    sampleUrls: ["https://www.mixcloud.com/user/mix-name/"],
     notes: [
-      "Requires authentication",
-      "Premium quality available",
-      "Large catalog",
-      "May have restrictions"
+      "DJ mixes and radio shows",
+      "Long-form content",
+      "Consistent availability",
+      "Streaming-focused platform"
     ],
-    description: "Music streaming service (extractor-dependent)"
+    description: "Platform for DJ mixes and radio shows"
+  },
+  {
+    name: "Beatport",
+    extractor: "beatport",
+    category: "audio",
+    qualityRank: 4,
+    maxAudioQuality: "MP3 320kbps",
+    maxVideoQuality: "N/A",
+    supportedCodecs: ["mp3", "wav"],
+    reliability: "high",
+    typicalBitrates: ["192kbps", "320kbps", "WAV lossless"],
+    sampleUrls: ["https://www.beatport.com/track/artist-name/123456"],
+    notes: [
+      "Electronic music focus",
+      "Professional DJ source",
+      "High quality downloads",
+      "Commercial content"
+    ],
+    description: "Electronic music store and DJ resource"
   },
   {
     name: "Apple Podcasts",
@@ -169,6 +188,177 @@ const dataSources: DataSource[] = [
     description: "Apple's podcast directory with high-quality audio"
   },
   {
+    name: "LastFM",
+    extractor: "lastfm",
+    category: "audio",
+    qualityRank: 3,
+    maxAudioQuality: "MP3 128kbps",
+    maxVideoQuality: "N/A",
+    supportedCodecs: ["mp3"],
+    reliability: "high",
+    typicalBitrates: ["128kbps"],
+    sampleUrls: ["https://www.last.fm/music/artist/_/track/name"],
+    notes: [
+      "Music discovery platform",
+      "Extensive metadata",
+      "Consistent quality",
+      "Good for finding new music"
+    ],
+    description: "Music discovery and scrobbling platform"
+  },
+  {
+    name: "Newgrounds",
+    extractor: "newgrounds",
+    category: "both",
+    qualityRank: 3,
+    maxAudioQuality: "MP3 320kbps",
+    maxVideoQuality: "1080p H.264",
+    supportedCodecs: ["mp3", "h264"],
+    reliability: "high",
+    typicalBitrates: ["128-320kbps audio", "2-8Mbps video"],
+    sampleUrls: ["https://www.newgrounds.com/audio/listen/123456"],
+    notes: [
+      "Creative community",
+      "Original content",
+      "No restrictions",
+      "Artist-friendly platform"
+    ],
+    description: "Creative community platform for audio and video"
+  },
+  {
+    name: "Freesound",
+    extractor: "freesound",
+    category: "audio",
+    qualityRank: 4,
+    maxAudioQuality: "WAV/FLAC lossless",
+    maxVideoQuality: "N/A",
+    supportedCodecs: ["wav", "flac", "mp3", "ogg"],
+    reliability: "high",
+    typicalBitrates: ["Lossless", "192kbps", "128kbps"],
+    sampleUrls: ["https://freesound.org/people/artist/sounds/123456"],
+    notes: [
+      "Sound effects library",
+      "High quality samples",
+      "Creative Commons licensed",
+      "Professional audio content"
+    ],
+    description: "Collaborative database of audio samples and sounds"
+  },
+  {
+    name: "Nebula",
+    extractor: "nebula",
+    category: "both",
+    qualityRank: 4,
+    maxAudioQuality: "AAC 256kbps",
+    maxVideoQuality: "4K H.264",
+    supportedCodecs: ["aac", "h264"],
+    reliability: "high",
+    typicalBitrates: ["128-256kbps audio", "8-15Mbps video"],
+    sampleUrls: ["https://watchnebula.com/videos/creator/video-title"],
+    notes: [
+      "Educational content",
+      "Creator-owned platform",
+      "High production quality",
+      "Ad-free experience"
+    ],
+    description: "Educational streaming platform supporting independent creators"
+  },
+  {
+    name: "Khan Academy",
+    extractor: "khanacademy",
+    category: "both",
+    qualityRank: 3,
+    maxAudioQuality: "AAC 128kbps",
+    maxVideoQuality: "1080p H.264",
+    supportedCodecs: ["aac", "h264"],
+    reliability: "high",
+    typicalBitrates: ["96-128kbps audio", "2-6Mbps video"],
+    sampleUrls: ["https://www.khanacademy.org/science/physics/quantum-physics"],
+    notes: [
+      "Educational content",
+      "Free to access",
+      "High quality teaching",
+      "Reliable source"
+    ],
+    description: "Free educational platform with video lessons"
+  },
+  {
+    name: "Lecture2Go",
+    extractor: "lecture2go",
+    category: "both",
+    qualityRank: 3,
+    maxAudioQuality: "AAC 128kbps",
+    maxVideoQuality: "1080p H.264",
+    supportedCodecs: ["aac", "h264"],
+    reliability: "medium",
+    typicalBitrates: ["96-128kbps audio", "3-8Mbps video"],
+    sampleUrls: ["https://lecture2go.uni-hamburg.de/lecture/12345"],
+    notes: [
+      "Academic lectures",
+      "University content",
+      "Educational focus",
+      "German university platform"
+    ],
+    description: "University lecture recordings and academic content"
+  },
+  {
+    name: "MuseScore",
+    extractor: "musescore",
+    category: "both",
+    qualityRank: 4,
+    maxAudioQuality: "MP3 320kbps",
+    maxVideoQuality: "1080p",
+    supportedCodecs: ["mp3", "flac", "h264"],
+    reliability: "high",
+    typicalBitrates: ["128-320kbps audio", "2-6Mbps video"],
+    sampleUrls: ["https://musescore.com/user/123456/scores/789012"],
+    notes: [
+      "Sheet music with audio",
+      "High quality MIDI/audio",
+      "Community-driven",
+      "Educational content"
+    ],
+    description: "Sheet music platform with audio playback"
+  },
+  {
+    name: "Monstercat",
+    extractor: "monstercat",
+    category: "both",
+    qualityRank: 4,
+    maxAudioQuality: "MP3 320kbps",
+    maxVideoQuality: "4K",
+    supportedCodecs: ["mp3", "flac", "h264", "vp9"],
+    reliability: "high",
+    typicalBitrates: ["128-320kbps audio", "5-15Mbps video"],
+    sampleUrls: ["https://www.monstercat.com/release/album-title"],
+    notes: [
+      "Electronic music label",
+      "High quality releases",
+      "Consistent uploads",
+      "Professional production"
+    ],
+    description: "Independent electronic music record label"
+  },
+  {
+    name: "Odysee (LBRY)",
+    extractor: "lbry",
+    category: "both",
+    qualityRank: 3,
+    maxAudioQuality: "AAC 256kbps",
+    maxVideoQuality: "4K H.264",
+    supportedCodecs: ["aac", "h264", "vp9"],
+    reliability: "medium",
+    typicalBitrates: ["128-256kbps audio", "3-12Mbps video"],
+    sampleUrls: ["https://odysee.com/@channel/video-title"],
+    notes: [
+      "Decentralized platform",
+      "Creator-friendly",
+      "No content restrictions",
+      "Cryptocurrency-based"
+    ],
+    description: "Decentralized video and audio content platform"
+  },
+  {
     name: "Twitch",
     extractor: "twitch",
     category: "both",
@@ -188,23 +378,99 @@ const dataSources: DataSource[] = [
     description: "Live streaming platform with video-on-demand content"
   },
   {
-    name: "Beatport",
-    extractor: "beatport",
-    category: "audio",
-    qualityRank: 4,
-    maxAudioQuality: "MP3 320kbps",
-    maxVideoQuality: "N/A",
-    supportedCodecs: ["mp3", "wav"],
-    reliability: "high",
-    typicalBitrates: ["192kbps", "320kbps", "WAV lossless"],
-    sampleUrls: ["https://www.beatport.com/track/artist-name/123456"],
+    name: "Kick",
+    extractor: "kick",
+    category: "both",
+    qualityRank: 3,
+    maxAudioQuality: "AAC 128kbps",
+    maxVideoQuality: "1080p60 H.264",
+    supportedCodecs: ["aac", "h264"],
+    reliability: "medium",
+    typicalBitrates: ["96-128kbps audio", "4-10Mbps video"],
+    sampleUrls: ["https://kick.com/video/123456"],
     notes: [
-      "Electronic music focus",
-      "Professional DJ source",
-      "High quality downloads",
-      "Commercial content"
+      "Alternative to Twitch",
+      "Less restrictive moderation",
+      "Growing platform",
+      "Live streaming focus"
     ],
-    description: "Electronic music store and DJ resource"
+    description: "Live streaming platform with VOD support"
+  },
+  {
+    name: "Dailymotion",
+    extractor: "dailymotion",
+    category: "both",
+    qualityRank: 3,
+    maxAudioQuality: "AAC 128kbps",
+    maxVideoQuality: "1080p H.264",
+    supportedCodecs: ["aac", "h264", "vp9"],
+    reliability: "medium",
+    typicalBitrates: ["96-128kbps audio", "2-8Mbps video"],
+    sampleUrls: ["https://www.dailymotion.com/video/x123456"],
+    notes: [
+      "European platform",
+      "Moderate quality",
+      "Some regional restrictions",
+      "Reliable for mainstream content"
+    ],
+    description: "European video hosting platform"
+  },
+  {
+    name: "Peertube",
+    extractor: "peertube",
+    category: "both",
+    qualityRank: 3,
+    maxAudioQuality: "AAC 256kbps",
+    maxVideoQuality: "4K VP9/H.264",
+    supportedCodecs: ["aac", "opus", "h264", "vp9"],
+    reliability: "medium",
+    typicalBitrates: ["128-256kbps audio", "3-15Mbps video"],
+    sampleUrls: ["https://instance.peertube.tv/videos/watch/123456"],
+    notes: [
+      "Federated platform",
+      "Open source",
+      "Privacy-focused",
+      "Instance-dependent quality"
+    ],
+    description: "Federated video platform (multiple instances)"
+  },
+  {
+    name: "Niconico",
+    extractor: "niconico",
+    category: "both",
+    qualityRank: 3,
+    maxAudioQuality: "AAC 192kbps",
+    maxVideoQuality: "1080p H.264",
+    supportedCodecs: ["aac", "h264"],
+    reliability: "medium",
+    typicalBitrates: ["96-192kbps audio", "2-10Mbps video"],
+    sampleUrls: ["https://www.nicovideo.jp/watch/sm123456"],
+    notes: [
+      "Japanese platform",
+      "Unique content",
+      "Comment overlay system",
+      "May require account"
+    ],
+    description: "Japanese video platform with interactive comments"
+  },
+  {
+    name: "Bilibili",
+    extractor: "bilibili",
+    category: "both",
+    qualityRank: 4,
+    maxAudioQuality: "AAC 320kbps",
+    maxVideoQuality: "4K HEVC/H.264",
+    supportedCodecs: ["aac", "mp3", "h264", "hevc"],
+    reliability: "medium",
+    typicalBitrates: ["128-320kbps audio", "5-20Mbps video"],
+    sampleUrls: ["https://www.bilibili.com/video/BV123456789"],
+    notes: [
+      "Chinese platform",
+      "High quality content",
+      "Danmaku comments",
+      "Regional restrictions possible"
+    ],
+    description: "Chinese video platform with high-quality content"
   }
 ];
 
