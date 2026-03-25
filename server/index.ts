@@ -28,6 +28,7 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 
 export default {
   port: 3420,
+  idleTimeout: 120,
   fetch: app.fetch,
 };
 

@@ -5,6 +5,9 @@ dist
 .env
 *.log
 
+.DS_Store
+**/.DS_Store
+
 # Ignore inspection files but keep .gitkeep
 downloads/inspections/*.json
 !downloads/inspections/.gitkeep
@@ -14,7 +17,9 @@ downloads/mp3/*
 downloads/wav/*
 downloads/flac/*
 downloads/other/*
+downloads/tmp/*
 !downloads/mp3/.gitkeep
 !downloads/wav/.gitkeep
 !downloads/flac/.gitkeep
 !downloads/other/.gitkeep
+!downloads/tmp/.gitkeep

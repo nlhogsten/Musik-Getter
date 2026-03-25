@@ -9,6 +9,7 @@ export interface DownloadJob {
 
 interface Props {
   jobs: DownloadJob[];
+  onCancel?: (index: number) => void;
 }
 
 const STATUS_DOT: Record<DownloadJob["status"], string> = {
@@ -18,7 +19,7 @@ const STATUS_DOT: Record<DownloadJob["status"], string> = {
   error: "bg-red-400",
 };
 
-export function DownloadProgress({ jobs }: Props) {
+export function DownloadProgress({ jobs, onCancel }: Props) {
   if (jobs.length === 0) return null;
 
   return (
@@ -31,6 +32,14 @@ export function DownloadProgress({ jobs }: Props) {
             <span className="text-xs text-slate-400 truncate flex-1">{job.url}</span>
             <span className="text-xs font-mono text-slate-500 shrink-0">{job.formatId}</span>
             <span className="text-xs text-slate-500 capitalize">{job.status}</span>
+            {job.status === "downloading" && onCancel && (
+              <button
+                onClick={() => onCancel(i)}
+                className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded-md hover:bg-red-900/30 transition-colors"
+              >
+                Cancel
+              </button>
+            )}
           </div>
           {job.command && (
             <p className="text-xs text-violet-400 font-mono break-all">$ {job.command}</p>

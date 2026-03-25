@@ -95,3 +95,15 @@ Music-Getter/
 | Best Video + Audio | Downloads best combined video + audio stream |
 
 Downloaded files land in the `downloads/` folder. Use **Show in Finder** in the Library tab to locate them.
+
+## Supported Sources
+
+yt-dlp supports thousands of sites. Common high-quality sources include:
+
+- **YouTube** - Official music videos, audio uploads
+- **Archive.org** - High-quality archival versions, often better than YouTube
+- **Vimeo** - Professional music videos
+- **Bandcamp** - Artist-direct uploads (when public)
+- **SoundCloud** - Artist uploads (when permitted)
+
+**Pro tip**: Archive.org often has higher quality versions of music videos than YouTube's compressed versions.

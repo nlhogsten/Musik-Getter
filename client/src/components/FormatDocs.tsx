@@ -145,6 +145,95 @@ export function FormatDocs() {
           </div>
         </div>
 
+        {/* Choosing Best Audio */}
+        <div className="bg-slate-800/50 rounded-lg p-6 mb-8 border border-slate-700">
+          <h2 className="text-xl font-semibold text-white mb-3">How to Choose the Best Audio (Practical)</h2>
+          <div className="space-y-4 text-slate-300">
+            <div>
+              <h3 className="font-semibold text-white mb-2">The 3 columns that matter most for audio</h3>
+              <div className="space-y-2">
+                <p>
+                  <strong>ACODEC</strong> = the audio codec (how audio is compressed). Common: <code className="bg-slate-700 px-1.5 py-0.5 rounded font-mono text-xs">opus</code> (WebM),
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded font-mono text-xs">mp4a</code> (AAC in M4A/MP4).
+                </p>
+                <p>
+                  <strong>ABR</strong> = audio bitrate. Higher usually means better (when comparing similar codecs).
+                </p>
+                <p>
+                  <strong>ASR</strong> = sample rate (44.1k vs 48k). Most YouTube audio is 48k and that’s fine.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-white mb-2">Container vs Codec (why EXT can be confusing)</h3>
+              <p>
+                <strong>EXT</strong> is the container (the file type like <code className="bg-slate-700 px-1.5 py-0.5 rounded font-mono text-xs">m4a</code>,
+                <code className="bg-slate-700 px-1.5 py-0.5 rounded font-mono text-xs">webm</code>,
+                <code className="bg-slate-700 px-1.5 py-0.5 rounded font-mono text-xs">mp4</code>). The container holds tracks.
+                The actual audio quality comes mostly from <strong>ACODEC + ABR</strong>.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-white mb-2">Rules of thumb</h3>
+              <ul className="space-y-1 text-slate-300 text-sm">
+                <li>• If you only want music, pick an <strong>audio only</strong> row (no video).</li>
+                <li>• Prefer higher <strong>ABR</strong> when comparing the same codec.</li>
+                <li>• <strong>Opus</strong> often sounds great at lower bitrates, but is less compatible with DJ tools/hardware. Converting to MP3 helps compatibility.</li>
+                <li>• Converting to MP3 does <strong>not</strong> improve quality. It just makes a DJ-friendly file from the best source you can get.</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-white mb-2">MP3 V0 (VBR) vs 320 (CBR)</h3>
+              <div className="space-y-2 text-sm text-slate-300">
+                <p>
+                  <strong>VBR</strong> means <strong>Variable Bit Rate</strong>: the encoder uses more bits for complex parts of the song and fewer bits for simple parts.
+                  <code className="bg-slate-700 px-2 py-1 rounded font-mono text-xs ml-2">V0</code>
+                  is a common “best quality” VBR setting for MP3.
+                </p>
+                <p>
+                  <strong>CBR</strong> means <strong>Constant Bit Rate</strong>: the file stays the same bitrate the whole time.
+                  <code className="bg-slate-700 px-2 py-1 rounded font-mono text-xs ml-2">320 CBR</code>
+                  is the maximum standard MP3 bitrate.
+                </p>
+                <p>
+                  <strong>Which should you choose?</strong>
+                </p>
+                <ul className="space-y-1">
+                  <li>• Pick <strong>V0 (VBR)</strong> for excellent quality and slightly smaller files.</li>
+                  <li>• Pick <strong>320 (CBR)</strong> if you want maximum consistency and don’t care about file size.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-white mb-2">YouTube vs Internet Archive</h3>
+              <ul className="space-y-1 text-slate-300 text-sm">
+                <li>• <strong>YouTube</strong>: many uploads top out around ~128–160kbps audio (AAC/Opus). Your “best” may still be ~140kbps.</li>
+                <li>• <strong>Archive.org</strong>: often provides an “original” file (like an MP4) with embedded audio that can be higher bitrate. You usually extract audio from that container.</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-white mb-2">Worked example (common situation)</h3>
+              <div className="space-y-2 text-sm">
+                <p>
+                  YouTube shows:
+                  <code className="bg-slate-700 px-2 py-1 rounded font-mono text-xs ml-2">251 webm audio only opus ~140k</code>
+                  That’s the best YouTube audio for that upload.
+                </p>
+                <p>
+                  Archive.org shows:
+                  <code className="bg-slate-700 px-2 py-1 rounded font-mono text-xs ml-2">0 mp4 original</code>
+                  The MP4 is likely a higher quality master file. Download it, then extract/convert to MP3 for Rekordbox.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Column Reference Table */}
         <div className="bg-slate-800/50 rounded-lg p-6 mb-8 border border-slate-700">
           <h2 className="text-xl font-semibold text-white mb-4">Quick Reference</h2>

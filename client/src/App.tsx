@@ -10,6 +10,9 @@ import { DataSources } from "./components/DataSources";
 
 type Tab = "download" | "library" | "docs" | "history" | "sources";
 
+type OutputMode = "original" | "mp3";
+type Mp3Mode = "v0" | "320";
+
 export default function App() {
   const [tab, setTab] = useState<Tab>("download");
   const [urls, setUrls] = useState<string[]>([""]);
@@ -21,6 +24,12 @@ export default function App() {
   const [selected, setSelected] = useState<Map<string, Set<string>>>(new Map());
   const [jobs, setJobs] = useState<DownloadJob[]>([]);
   const [downloading, setDownloading] = useState(false);
+
+  const [jobControllers, setJobControllers] = useState<Map<number, AbortController>>(new Map());
+
+  const [outputMode, setOutputMode] = useState<OutputMode>("original");
+  const [mp3Mode, setMp3Mode] = useState<Mp3Mode>("v0");
+  const [keepSource, setKeepSource] = useState(false);
 
   const handleInspect = async () => {
     const validUrls = urls.filter((u) => u.trim());
@@ -92,6 +101,8 @@ export default function App() {
     if (selectedCount === 0) return;
     setDownloading(true);
 
+    setJobControllers(new Map());
+
     // Build flat list of (url, formatId) pairs
     const pairs: { url: string; formatId: string }[] = [];
     for (const [url, formatIds] of selected.entries()) {
@@ -111,6 +122,13 @@ export default function App() {
     for (let i = 0; i < pairs.length; i++) {
       const { url, formatId } = pairs[i];
 
+      const controller = new AbortController();
+      setJobControllers((prev) => {
+        const next = new Map(prev);
+        next.set(i, controller);
+        return next;
+      });
+
       setJobs((prev) =>
         prev.map((j, idx) => (idx === i ? { ...j, status: "downloading" } : j))
       );
@@ -119,8 +137,32 @@ export default function App() {
         const res = await fetch("/api/download", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url, format: formatId, proxy: proxy || undefined }),
+          signal: controller.signal,
+          body: JSON.stringify({
+            url,
+            format: formatId,
+            proxy: proxy || undefined,
+            output: outputMode,
+            mp3Mode: outputMode === "mp3" ? mp3Mode : undefined,
+            keepSource: outputMode === "mp3" ? keepSource : undefined,
+          }),
         });
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => "");
+          setJobs((prev) =>
+            prev.map((j, idx) =>
+              idx === i
+                ? {
+                    ...j,
+                    status: "error",
+                    error: text || `Request failed (${res.status})`,
+                  }
+                : j
+            )
+          );
+          continue;
+        }
 
         const reader = res.body!.getReader();
         const decoder = new TextDecoder();
@@ -137,7 +179,22 @@ export default function App() {
           for (const part of parts) {
             const dataLine = part.split("\n").find((l) => l.startsWith("data:"));
             if (!dataLine) continue;
-            const json = JSON.parse(dataLine.slice(5).trim());
+            type SSEMessage = 
+              | { type: "command"; command: string }
+              | { type: "progress"; line: string }
+              | { type: "done"; success: boolean; error?: string };
+            let json: SSEMessage;
+            try {
+              json = JSON.parse(dataLine.slice(5).trim());
+            } catch {
+              setJobs((prev) =>
+                prev.map((j, idx) =>
+                  idx === i ? { ...j, status: "error", error: "Failed to parse server response" } : j
+                )
+              );
+              controller.abort();
+              break;
+            }
 
             setJobs((prev) =>
               prev.map((j, idx) => {
@@ -152,16 +209,36 @@ export default function App() {
           }
         }
       } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        const errorMessage =
+          err instanceof DOMException && err.name === "AbortError"
+            ? "Canceled"
+            : err instanceof Error
+              ? err.message
+              : "Unknown error";
         setJobs((prev) =>
           prev.map((j, idx) =>
             idx === i ? { ...j, status: "error", error: errorMessage } : j
           )
         );
+      } finally {
+        setJobControllers((prev) => {
+          const next = new Map(prev);
+          next.delete(i);
+          return next;
+        });
       }
     }
 
     setDownloading(false);
+  };
+
+  const handleCancelJob = (index: number) => {
+    const controller = jobControllers.get(index);
+    if (!controller) return;
+    controller.abort();
+    setJobs((prev) =>
+      prev.map((j, idx) => (idx === index ? { ...j, status: "error", error: "Canceled" } : j))
+    );
   };
 
   return (
@@ -246,21 +323,70 @@ export default function App() {
             )}
 
             {selectedCount > 0 && (
-              <div className="flex items-center justify-between rounded-lg border border-violet-700/50 bg-violet-900/20 px-5 py-3">
-                <p className="text-sm text-violet-300">
-                  {selectedCount} format{selectedCount !== 1 ? "s" : ""} selected
-                </p>
-                <button
-                  onClick={handleDownload}
-                  disabled={downloading}
-                  className="rounded-md bg-violet-600 px-5 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
-                  {downloading ? "Downloading..." : "Download Selected"}
-                </button>
+              <div className="space-y-3">
+                <details className="rounded-lg border border-slate-700 bg-slate-800 px-5 py-3">
+                  <summary className="cursor-pointer select-none text-sm font-medium text-slate-300">
+                    Advanced Download Options
+                  </summary>
+
+                  <div className="mt-4 grid gap-4 md:grid-cols-3">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-2">Output</label>
+                      <select
+                        value={outputMode}
+                        onChange={(e) => setOutputMode(e.target.value as OutputMode)}
+                        className="w-full rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                      >
+                        <option value="original">Original (no conversion)</option>
+                        <option value="mp3">MP3 (extract/convert audio)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-2">MP3 Mode</label>
+                      <select
+                        value={mp3Mode}
+                        onChange={(e) => setMp3Mode(e.target.value as Mp3Mode)}
+                        disabled={outputMode !== "mp3"}
+                        className="w-full rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-40 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                      >
+                        <option value="v0">V0 (VBR)</option>
+                        <option value="320">320 CBR</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-6">
+                      <input
+                        id="keepSource"
+                        type="checkbox"
+                        checked={keepSource}
+                        onChange={(e) => setKeepSource(e.target.checked)}
+                        disabled={outputMode !== "mp3"}
+                        className="accent-violet-500 disabled:opacity-40"
+                      />
+                      <label htmlFor="keepSource" className="text-sm text-slate-300">
+                        Keep source file
+                      </label>
+                    </div>
+                  </div>
+                </details>
+
+                <div className="flex items-center justify-between rounded-lg border border-violet-700/50 bg-violet-900/20 px-5 py-3">
+                  <p className="text-sm text-violet-300">
+                    {selectedCount} format{selectedCount !== 1 ? "s" : ""} selected
+                  </p>
+                  <button
+                    onClick={handleDownload}
+                    disabled={downloading}
+                    className="rounded-md bg-violet-600 px-5 py-2 text-sm font-medium text-white hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {downloading ? "Downloading..." : "Download Selected"}
+                  </button>
+                </div>
               </div>
             )}
 
-            <DownloadProgress jobs={jobs} />
+            <DownloadProgress jobs={jobs} onCancel={handleCancelJob} />
           </>
         ) : tab === "library" ? (
           <Library />
@@ -277,3 +403,4 @@ export default function App() {
     </div>
   );
 }
+
