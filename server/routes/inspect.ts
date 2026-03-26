@@ -50,33 +50,104 @@ inspectRoutes.post("/", async (c) => {
 
   const results = await Promise.all(
     urls.map(async (url) => {
-      const args = ["-F", "--no-warnings", url];
+      const args = ["-F", "--no-warnings", "--newline", "--no-playlist", url];
       if (proxy) args.splice(1, 0, "--proxy", proxy);
 
       const command = `yt-dlp ${args.join(" ")}`;
-      pushLog("info", `Running: ${command}`);
+      pushLog("info", `Inspect starting: ${command}`);
 
       const proc = Bun.spawn(["yt-dlp", ...args], {
         stdout: "pipe",
         stderr: "pipe",
       });
 
-      const stdout = await new Response(proc.stdout).text();
-      const stderr = await new Response(proc.stderr).text();
+      const startedAt = Date.now();
+      const pid = (proc as any)?.pid;
+      if (pid) pushLog("info", `yt-dlp PID: ${pid}`);
+
+      const decoder = new TextDecoder();
+      let stdoutAll = "";
+      let stderrAll = "";
+
+      const readStream = async (
+        stream: ReadableStream<Uint8Array>,
+        onLine: (line: string) => void,
+        onChunk: (chunk: string) => void
+      ) => {
+        const reader = stream.getReader();
+        let buf = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const text = decoder.decode(value, { stream: true });
+          onChunk(text);
+          buf += text;
+          const lines = buf.split("\n");
+          buf = lines.pop() || "";
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed) onLine(trimmed);
+          }
+        }
+        const final = buf.trim();
+        if (final) onLine(final);
+      };
+
+      const heartbeatEveryMs = 5000;
+      const timeoutMs = 60000;
+
+      const heartbeat = setInterval(() => {
+        const elapsedMs = Date.now() - startedAt;
+        pushLog("info", `Inspect still running (${Math.round(elapsedMs / 1000)}s): ${url}`);
+      }, heartbeatEveryMs);
+
+      const timeout = setTimeout(() => {
+        pushLog("warn", `Inspect timeout after ${Math.round(timeoutMs / 1000)}s; killing yt-dlp for ${url}`);
+        try {
+          proc.kill();
+        } catch {
+          // ignore
+        }
+      }, timeoutMs);
+
+      try {
+        await Promise.all([
+          readStream(
+            proc.stdout,
+            (line) => pushLog("info", line),
+            (chunk) => {
+              stdoutAll += chunk;
+            }
+          ),
+          readStream(
+            proc.stderr,
+            (line) => pushLog("error", line),
+            (chunk) => {
+              stderrAll += chunk;
+            }
+          ),
+        ]);
+      } finally {
+        clearInterval(heartbeat);
+        clearTimeout(timeout);
+      }
+
       const exitCode = await proc.exited;
+      const elapsedMs = Date.now() - startedAt;
+      pushLog("info", `Inspect finished. Exit: ${exitCode}. Duration: ${Math.round(elapsedMs / 1000)}s. URL: ${url}`);
 
-      if (stderr) pushLog("error", `yt-dlp stderr: ${stderr.trim()}`);
-      pushLog("info", `Exit code: ${exitCode} for ${url}`);
+      const stderrTrimmed = stderrAll.trim();
+      if (stderrTrimmed) pushLog("error", `yt-dlp stderr (inspect): ${stderrTrimmed}`);
 
-      const formats = exitCode === 0 ? parseFormats(stdout) : [];
+      const formats = exitCode === 0 ? parseFormats(stdoutAll) : [];
 
       return {
         url,
         command,
         success: exitCode === 0,
         formats,
-        rawOutput: stdout,
-        error: stderr || undefined,
+        rawOutput: stdoutAll,
+        error: stderrTrimmed || undefined,
       };
     })
   );

@@ -11,13 +11,14 @@ const NAMED_PRESETS = new Set(["mp3", "wav", "flac"]);
 export const downloadRoutes = new Hono();
 
 downloadRoutes.post("/", async (c) => {
-  const { url, format, proxy, output, mp3Mode, keepSource } = await c.req.json<{
+  const { url, format, proxy, output, mp3Mode, keepSource, allowPlaylist } = await c.req.json<{
     url: string;
     format?: string;
     proxy?: string;
     output?: "original" | "mp3";
     mp3Mode?: "v0" | "320";
     keepSource?: boolean;
+    allowPlaylist?: boolean;
   }>();
 
   if (!url) return c.json({ error: "URL is required" }, 400);
@@ -25,6 +26,8 @@ downloadRoutes.post("/", async (c) => {
   const args: string[] = [];
 
   if (proxy) args.push("--proxy", proxy);
+
+  if (allowPlaylist !== true) args.push("--no-playlist");
 
   const fmt = format || "mp3";
   const outputMode = output || "original";
